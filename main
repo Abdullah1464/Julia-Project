@@ -29,7 +29,7 @@ R2 = 0.36       # squared correlation coefficient of predictions.
 range = 582     # auto-correlation range of the prediction error,
                 # in the same length unit as x and y.
 maxcycle = 150  # Maximal number of re-allocation cycles.
-in = 1           # Sampling interval for coarse-gridding
+in = 3           # Sampling interval for coarse-gridding
                 # (in = 1 implies no coarse-gridding).
 seed = 1234     # seed for the rand() and randperm() functions.
 
