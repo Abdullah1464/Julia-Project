@@ -14,7 +14,7 @@
 # 7. Output of final results
 
 # For process monitoring, uncomment println() lines
-
+using DelimitedFiles
 function ospats()
 println("------------------------------------------------")
 println("-------------------- START FUNCTION OSPATS ---")
@@ -32,8 +32,8 @@ d2 = d2 + d2'
 
 TOTd2 = sum(d2)/2
 ObarH1 = sqrt(TOTd2)/N
-stratcy = Array{UInt64,1}(N)
-stratbest = Array{UInt64,1}(N)
+stratcy = zeros(UInt64, N)
+stratbest = zeros(UInt64, N)
 Hbest = H_min
 
 global stratbest, nhbest, Hbest, ObarFinal, nbest, nh_l, Nh
@@ -43,7 +43,7 @@ global stratbest, nhbest, Hbest, ObarFinal, nbest, nh_l, Nh
 
 println("----------------------------Number of strata  :  ",H)
 
-cbObj = Array{Float64,1}(H)
+cbObj = zeros(Float64, H)
 cbObj = zeros(Float64,H,1)
 TotTransf = 0
 
@@ -58,7 +58,7 @@ TotTransf = 0
   end
   fillup = collect(1:missing)
   B = vcat(B,fillup)
-  strat0 = Array{UInt64,1}(N)
+  strat0 = zeros(UInt64, N)
   v = collect(1:N)
   w = v[randperm(rng, N)]
   for i = 1:N
@@ -87,7 +87,7 @@ ObarInit = O/N
 
 ##### SECTION 4. TRANSFER GRID POINTS
 
-stratcy = Array{UInt64,2}(N,1)
+stratcy = zeros(UInt64, N, 1)
 stratcy = strat0
 TotTransf = 0
 TotCycle = 0
@@ -98,7 +98,7 @@ for cycle = 1:maxcycle
     Delta = 0
     change = 0
     A = stratcy[t]
-    ij = find(stratcy .== A)
+    ij = findall(x -> x == A, stratcy)
     dA = sum(d2[t,ij])
     sumd2tinA = dA
     Sd2Amint = Sd2[A] - sumd2tinA
@@ -108,7 +108,7 @@ for cycle = 1:maxcycle
       sumd2plus = 0
       if stratnr != A
         B = stratnr
-        ij = find(stratcy .== B)
+        ij = findall(x -> x == B, stratcy)
         dB = sum(d2[t,ij])
         sumd2plus = dB
         cbObjB = sqrt.(abs.(Sd2[B] + sumd2plus))
@@ -142,10 +142,10 @@ ObarFinal = O/N
 ##### SECTION 5. SAMPLE SIZES
 
 ##### Subsection 5.1 Size of the grid-strata
-Nh = Array{UInt64}(1,H)
+Nh = zeros(UInt64, 1, H)
 Nh = zeros(H)
 for h = 1:H
-  k = find(stratcy .== h)
+  k = findall(x -> x == h, stratcy)
   Nh[h] = length(k)
 end
 
@@ -159,8 +159,8 @@ for h = 1:H
    ahOh = Nh[h]*cbObj[h]
    sum_ahOh = sum_ahOh + ahOh
 end
-nh = Array{Float64}(H)
-nhbest = Array{Float64}(H)
+nh = zeros(Float64, H)
+nhbest = zeros(Float64, H)
 for h = 1:H
   nh[h] = n_pred *Nh[h] *cbObj[h]/sum_ahOh
 end
@@ -172,7 +172,7 @@ n_pred = sum(nh)
 n_pred = convert(UInt64,n_pred)
 
 ##### Subsection 5.5 Check on smallest sample size in strata.
-nh_low = indmin(nh)
+nh_low = argmin(nh)
 nh_l = nh[nh_low]
 nh_min = Array{Float64,1}
 nh_min = nh_minim
@@ -200,12 +200,12 @@ end                                         # end optimization of H
  n_tot = nbest   # sum(nhbest)
  n_tot = round(n_tot)
  n_tot = convert(UInt64,n_tot)
- points = Array{UInt64}(1,n_tot)
- xs = Array{Float64}(1,n_tot)
- ys = Array{Float64}(1,n_tot)
+points = zeros(UInt64, 1, n_tot)
+xs = zeros(Float64, 1, n_tot)
+ys = zeros(Float64, 1, n_tot)
 
  for h = 1:Hbest
-  k = find(stratbest .== h)      # numbers of points in stratum h
+  k = findall(x -> x == h, stratcy)      # numbers of points in stratum h
   stratsize = length(k)
   v = collect(1:stratsize)
   w = v[randperm(rng,stratsize)]  # randomized indexes to points
@@ -230,16 +230,17 @@ strata = stratbest[points]    # get stratum numbers of sample points
 sampnr = collect(1:n_tot)     # make sample numbers
 
 strs = DataFrame()
-strs[:SampleNr] = sampnr
-strs[:StratNr] = strata
-strs[:PointNr] = points
-strs[:X] = xs
-strs[:Y] = ys
+
+strs[!, :SampleNr] = sampnr
+strs[!, :StratNr] = strata
+strs[!, :PointNr] = points
+strs[!, :X] = xs
+strs[!, :Y] = ys
 
 stratif = DataFrame()
-stratif[:X] = x
-stratif[:Y] = y
-stratif[:Stratum] = stratbest
+stratif[!, :X] = x
+stratif[!, :Y] = y
+stratif[!, :Stratum] = stratbest
 
 ##### SECTION 8. OUTPUT OF FINAL RESULTS
 

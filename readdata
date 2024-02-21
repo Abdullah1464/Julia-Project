@@ -8,12 +8,12 @@ function readdata()
 global x, y, z_pred, s2, N
 ##################################### Reading the data file
 # Data = readtable(filename, header=false, separator=',')
-Data = CSV.read(filename; delim=',')
-x = Data[:1]
-y = Data[:2]
+Data = CSV.read(filename, DataFrame; delim=',')
+x = Data[:,1]
+y = Data[:,2]
 # nr = Data[:3]        grid point identifier
-z_pred = Data[:4]
-s2 = Data[:5]
+z_pred = Data[:,4]
+s2 = Data[:,5]
 N = length(x)
 println("Grid size : ", N)
 

@@ -5,8 +5,12 @@
 # Version: 1.01
 # Author: Jaap de Gruijter
 
+include("ospats")
+include("ospall")
+include("readdata")
 using DataFrames
 using CSV
+using Random
 
 filename = "Nowley.txt"     ########### INSERT here name of data file:
 
@@ -25,11 +29,11 @@ R2 = 0.36       # squared correlation coefficient of predictions.
 range = 582     # auto-correlation range of the prediction error,
                 # in the same length unit as x and y.
 maxcycle = 150  # Maximal number of re-allocation cycles.
-in = 3           # Sampling interval for coarse-gridding
+in = 1           # Sampling interval for coarse-gridding
                 # (in = 1 implies no coarse-gridding).
 seed = 1234     # seed for the rand() and randperm() functions.
 
-rng = srand(seed)
+rng = Random.seed!(seed)
 readdata()
 if in == 1
   println("Calling function ospats")
